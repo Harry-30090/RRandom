@@ -59,6 +59,7 @@
 
   <script>
     let names = [];
+    let lastWinner = null; // Variable to store the last winner
 
     function autoLoadNames() {
       const input = document.getElementById('nameList').value.trim();
@@ -68,17 +69,23 @@
 
     function pickWinner() {
       if (names.length === 0) {
-        alert('Please enter at least one name.');
+        alert('1人以上の名前を入力してください。');
         return;
       }
 
-      const riggedVisible = document.getElementById('riggedDropdownContainer').style.display === 'block';
-      const rigged = riggedVisible ? document.getElementById('riggedDropdown').value : null;
+      const rigged = document.getElementById('riggedDropdown').value; // Always get the selected rigged winner
+      const isRiggedActive = rigged !== ""; // Check if a rigged winner is selected
 
-      let winner = rigged && names.includes(rigged)
+      let eligibleNames = names.filter(name => name !== lastWinner); // Exclude the last winner
+      if (eligibleNames.length === 0) {
+        eligibleNames = [...names]; // Reset to all names if no eligible names are left
+      }
+
+      let winner = isRiggedActive && names.includes(rigged)
         ? rigged
-        : names[Math.floor(Math.random() * names.length)];
+        : eligibleNames[Math.floor(Math.random() * eligibleNames.length)];
 
+      lastWinner = winner; // Update the last winner
       document.getElementById('winnerDisplay').innerText = `勝者は ${winner}です! 🎉`;
     }
 
@@ -99,12 +106,23 @@
     function updateRiggedDropdown() {
       const dropdown = document.getElementById('riggedDropdown');
       dropdown.innerHTML = '';
+
+      // Add a default "reset" option
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = '未選択'; // "Unselected" in Japanese
+      dropdown.appendChild(defaultOption);
+
+      // Add the names to the dropdown
       names.forEach(name => {
         const option = document.createElement('option');
         option.value = name;
         option.textContent = name;
         dropdown.appendChild(option);
       });
+
+      // Reset the dropdown to the default option
+      dropdown.selectedIndex = 0;
     }
 
     function resetRiggedWinner() {
@@ -114,6 +132,6 @@
     function hideRigControls() {
       document.getElementById('riggedDropdownContainer').style.display = 'none';
     }
-  </script>
+</script>
 </body>
 </html>
