@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ランダム選択
+</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    textarea {
+      width: 300px;
+      height: 100px;
+    }
+    #adminControls, #riggedDropdownContainer {
+      margin-top: 10px;
+      display: none;
+    }
+    #adminSection {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #adminButton {
+      width: 20px;
+      height: 20px;
+      background: #eeeeee;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>ランダム選択</h1>
+  <p>名前を入力してください (1行につき一名)</p>
+  <textarea id="nameList" oninput="autoLoadNames()"></textarea><br/>
+
+  <button onclick="pickWinner()">勝者をランダムで選ぶ</button>
+
+  <h2 id="winnerDisplay"></h2>
+
+  <div id="adminSection">
+    <button id="adminButton" onclick="showAdminControls()"></button>
+    <div id="adminControls">
+      <input type="password" id="adminPass" placeholder="パスコードを入力" />
+      <button onclick="checkPasscode()">送信</button>
+    </div>
+    <div id="riggedDropdownContainer">
+      <label for="riggedDropdown">仕込み:</label>
+      <select id="riggedDropdown"></select>
+      <button onclick="resetRiggedWinner()" style="margin-left: 10px;">リセット</button>
+      <button onclick="hideRigControls()" style="margin-left: 5px;">隠す</button>
+    </div>
+  </div>
+
+  <script>
+    let names = [];
+
+    function autoLoadNames() {
+      const input = document.getElementById('nameList').value.trim();
+      names = input.split('\n').filter(name => name.trim() !== '');
+      updateRiggedDropdown();
+    }
+
+    function pickWinner() {
+      if (names.length === 0) {
+        alert('Please enter at least one name.');
+        return;
+      }
+
+      const riggedVisible = document.getElementById('riggedDropdownContainer').style.display === 'block';
+      const rigged = riggedVisible ? document.getElementById('riggedDropdown').value : null;
+
+      let winner = rigged && names.includes(rigged)
+        ? rigged
+        : names[Math.floor(Math.random() * names.length)];
+
+      document.getElementById('winnerDisplay').innerText = `勝者は ${winner}です! 🎉`;
+    }
+
+    function showAdminControls() {
+      document.getElementById('adminControls').style.display = 'block';
+    }
+
+    function checkPasscode() {
+      const pass = document.getElementById('adminPass').value;
+      if (pass === '123') {
+        document.getElementById('adminControls').style.display = 'none';
+        document.getElementById('riggedDropdownContainer').style.display = 'block';
+      } else {
+        alert('Incorrect passcode');
+      }
+    }
+
+    function updateRiggedDropdown() {
+      const dropdown = document.getElementById('riggedDropdown');
+      dropdown.innerHTML = '';
+      names.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        dropdown.appendChild(option);
+      });
+    }
+
+    function resetRiggedWinner() {
+      document.getElementById('riggedDropdown').selectedIndex = -1;
+    }
+
+    function hideRigControls() {
+      document.getElementById('riggedDropdownContainer').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
